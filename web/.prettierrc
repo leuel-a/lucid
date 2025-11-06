@@ -1,0 +1,19 @@
+{
+    "tabWidth": 4,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "bracketSpacing": false,
+    "arrowParens": "always",
+    "printWidth": 100,
+    "singleAttributePerLine": true,
+    "plugins": ["prettier-plugin-tailwindcss", "prettier/parser-html"],
+    "overrides": [
+        {
+            "files": "*.vue",
+            "options": {
+                "singleAttributePerLine": true,
+                "printWidth": 100
+            }
+        }
+    ]
+}

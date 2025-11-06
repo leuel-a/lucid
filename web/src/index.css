@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+    --font-fira-code: 'Fira Code', monospace;
+
+    --blue-900: #15202b;
+    --blue-800: #1e2a3a;
+    --blue-700: #2d3e50;
+
+    --orange-600: #ff7e33;
+    --orange-400: #ff9a5c;
+}
+
+@theme inline {
+    --font-mono: var(--font-fira-code);
+
+    /* COLORS PRIMARY, SECONDARY */
+    --color-darkest: var(--blue-900);
+    --color-primary: var(--blue-800);
+    --color-elev: var(--blue-700);
+
+    --color-accent: var(--orange-600);
+    --color-accent-secondary: var(--orange-400);
+
+    --color-text: #e1e8ed;
+    --color-text-muted: #aab8c2;
+}
