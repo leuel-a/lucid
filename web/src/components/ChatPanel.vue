@@ -57,7 +57,7 @@ function onKeyDownHandler(event) {
                 >
                     <div
                         v-if="message.role === 'assistant'"
-                        class="max-w-[72%] rounded bg-white/6 p-3 shadow"
+                        class="max-w-9/12 rounded bg-white/6 p-3 shadow"
                     >
                         <div
                             class="text-sm"
@@ -67,10 +67,16 @@ function onKeyDownHandler(event) {
                     </div>
                     <div
                         v-else
-                        class="max-w-[72%] rounded bg-linear-to-r from-[#2b3f50] to-[#243543] p-3 text-right shadow"
+                        class="max-w-9/12 rounded bg-linear-to-r from-blue-gray-700 to-blue-gray-900 p-3 text-right shadow"
                     >
-                        <div class="text-sm">{{ message.content }}</div>
-                        <div class="text-muted mt-2 text-xs">{{ message.time }}</div>
+                        <div
+                            class="text-sm"
+                            v-html="message.content"
+                        ></div>
+                        <div
+                            class="text-muted mt-2 text-xs"
+                            v-html="message.time"
+                        ></div>
                     </div>
                 </div>
             </transition-group>

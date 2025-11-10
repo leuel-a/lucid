@@ -24,9 +24,12 @@ indent_size = 4
 quote_type = single
 trim_trailing_whitespace = true
 
-# JSON / YAML configs
-[*.{json,yml,yaml}]
+# JSON
+[*.json]
 indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 4
 
 # Markdown
 [*.md]

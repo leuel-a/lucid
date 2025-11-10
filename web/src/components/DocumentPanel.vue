@@ -2,71 +2,57 @@
 import {ref} from 'vue';
 import UploadItem from './UploadItem.vue';
 
-const files = ref([]);
-let idCounter = 1;
+/**
+ * @typedef {import('../types.js').UploadFileItem} UploadFileItem
+ */
 
-function onDrop(e) {
-    e.preventDefault();
-    const dropped = Array.from(e.dataTransfer.files || []);
+/** @type {import('vue').Ref<Array<UploadFileItem>>} */
+const files = ref([]);
+
+/** @param {DragEvent} event */
+function onDrop(event) {
+    event.preventDefault();
+    const dropped = Array.from(event.dataTransfer?.files || []);
     handleFiles(dropped);
 }
 
-function onInput(e) {
-    const selected = Array.from(e.target.files || []);
+/** @param {Event} event */
+function onInput(event) {
+    const selected = Array.from(event.target.files || []);
     handleFiles(selected);
-    e.target.value = '';
+    event.target.value = '';
 }
 
-function handleFiles(list) {
-    const allowed = [
+/** @param {File[]} filesList */
+function handleFiles(filesList) {
+    const allowedFileTypes = [
         'application/pdf',
         'text/plain',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
-    for (const f of list) {
-        if (!allowed.includes(f.type) && !f.name.match(/\.(pdf|txt|doc|docx)$/i)) {
-            files.value.push({
-                id: idCounter++,
-                name: f.name,
-                size: f.size,
-                type: f.type,
-                progress: 0,
-                status: 'error',
-            });
-            continue;
-        }
 
-        const fileObj = {
-            id: idCounter++,
-            name: f.name,
-            size: f.size,
-            type: f.type,
+    for (const file of filesList) {
+        const isAllowed =
+            allowedFileTypes.includes(file.type) || file.name.match(/\.(pdf|txt|doc|docx)$/i);
+
+        const nextId = files.value.length > 0 ? files.value[files.value.length - 1].id + 1 : 1;
+
+        files.value.unshift({
+            id: nextId,
+            name: file.name,
+            size: file.size,
+            type: file.type,
             progress: 0,
-            status: 'uploading',
-        };
-
-        files.value.unshift(fileObj);
-        fakeUpload(fileObj);
+            status: isAllowed ? 'uploading' : 'error',
+        });
     }
 }
 
-function fakeUpload(file) {
-    const step = () => {
-        if (file.progress >= 100) {
-            file.status = 'processed';
-            return;
-        }
-        file.progress += Math.floor(Math.random() * 18) + 6;
-        if (file.progress > 100) file.progress = 100;
-        setTimeout(step, 300 + Math.random() * 400);
-    };
-    setTimeout(step, 200);
-}
-
+/** @param {number} id */
 function removeFile(id) {
-    const idx = files.value.findIndex((f) => f.id === id);
-    if (idx !== -1) files.value.splice(idx, 1);
+    const index = files.value.findIndex((f) => f.id === id);
+    if (index !== -1) files.value.splice(index, 1);
 }
 </script>
 
@@ -83,43 +69,55 @@ function removeFile(id) {
             <div class="text-muted text-sm">Storage: local</div>
         </header>
 
-        <div class="p-4">
-            <div class="shadow rounded bg-white/6 p-4">
-                <div
-                    @dragover.prevent
-                    @drop="onDrop"
-                    class="rounded-md border-2 border-dashed border-white p-6 text-center"
-                >
-                    <i class="pi pi-cloud-upload mb-2 text-3xl"></i>
-                    <div class="text-sm">Drag & drop files here</div>
-                    <div class="text-muted mt-2 text-xs">Supported: PDF, DOC, DOCX, TXT</div>
-                    <div class="mt-4 flex justify-center">
-                        <label class="cursor-pointer rounded bg-white/10 px-4 py-2">
-                            <input
-                                type="file"
-                                multiple
-                                class="hidden"
-                                @change="onInput"
-                            />
-                            <i class="pi pi-upload mr-2"></i> Browse files
-                        </label>
-                    </div>
+        <div class="p-4 space-y-4">
+            <!-- Show this large banner only if there are NO files -->
+            <div
+                v-if="files.length === 0"
+                @dragover.prevent
+                @drop="onDrop"
+                class="shadow rounded bg-white/6 p-6 text-center border-2 border-dashed border-white"
+            >
+                <i class="pi pi-cloud-upload mb-2 text-3xl"></i>
+                <div class="text-sm">Drag & drop files here</div>
+                <div class="text-muted mt-2 text-xs">Supported: PDF, DOC, DOCX, TXT</div>
+                <div class="mt-4 flex justify-center">
+                    <label class="cursor-pointer rounded bg-white/10 px-4 py-2">
+                        <input
+                            type="file"
+                            multiple
+                            class="hidden"
+                            @change="onInput"
+                        />
+                        <i class="pi pi-upload mr-2"></i> Browse files
+                    </label>
                 </div>
             </div>
 
-            <div class="mt-4 space-y-3">
-                <div
-                    v-if="files.length === 0"
-                    class="text-muted text-sm"
-                >
-                    No documents uploaded yet.
-                </div>
+            <div class="space-y-3">
                 <UploadItem
-                    v-for="f in files"
-                    :key="f.id"
-                    :file="f"
+                    v-for="file in files"
+                    :key="file.id"
+                    :file="file"
                     @remove="removeFile"
                 />
+            </div>
+
+            <div
+                v-if="files.length > 0"
+                @dragover.prevent
+                @drop="onDrop"
+                class="rounded-md border-2 border-dashed border-white/40 p-3 flex items-center justify-center text-sm text-muted gap-8"
+            >
+                <span>Browser or Drop more files to upload</span>
+                <label class="cursor-pointer rounded">
+                    <input
+                        type="file"
+                        multiple
+                        class="hidden"
+                        @change="onInput"
+                    />
+                    <i class="pi pi-cloud-upload text-lg"></i>
+                </label>
             </div>
         </div>
     </div>

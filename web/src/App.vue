@@ -8,18 +8,10 @@ import DocumentPanel from './components/DocumentPanel.vue';
 let socket;
 
 onMounted(() => {
-    socket = new WebSocket('ws://localhost:8000/ws');
-
-    socket.onopen = () => {
-        console.log('(INFO)\t  WebSocket connection established');
-    };
-
-    socket.onerror = (err) => {
-        console.error('(ERROR)\t  WebSocket connection failed', err);
-    };
+    socket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
 
     socket.onmessage = (event) => {
-        console.log('(INFO) Message received:', event.data);
+        recieveMessage(event);
         sendingMessage.value = false;
     };
 });
@@ -28,10 +20,12 @@ onUnmounted(() => socket.close());
 
 const sendingMessage = ref(false);
 
+const HUMAN_MESSAGE_ROLE = "user";
+const ASSISTANT_MESSAGE_ROLE = "assistant";
 const messages = ref([
     {
         id: 1,
-        role: 'assistant',
+        role: ASSISTANT_MESSAGE_ROLE,
         content: 'Welcome! Upload documents on the right and ask me about them.',
         time: new Date().toLocaleTimeString(),
     },
@@ -44,9 +38,32 @@ const mobileView = ref('both');
  * @param {String} message
  */
 function sendMessage(message) {
-    console.log(`(INFO) send current message ${message}`);
     sendingMessage.value = true;
+
+    messages.value.push({
+        id: messages.value[messages.value.length - 1].id + 1,
+        role: HUMAN_MESSAGE_ROLE,
+        content: message,
+        time: new Date().toLocaleTimeString(),
+    });
+
     socket.send(`chat${JSON.stringify({message})}`);
+}
+
+/**
+ * Recieves a message from the WebSocket
+ * @param {MessageEvent} event
+ */
+function recieveMessage(event) {
+    /** @type {import('./types.js').SocketResponse} */
+    const data = JSON.parse(event.data);
+
+    messages.value.push({
+        id: messages.value[messages.value.length - 1].id + 1,
+        role: ASSISTANT_MESSAGE_ROLE,
+        content: data.content,
+        time: new Date().toLocaleTimeString(),
+    });
 }
 </script>
 

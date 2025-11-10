@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import logging
 
 import uvicorn
@@ -9,6 +10,8 @@ from server_utils import handle_websocket_communication
 from websocket_manager import WebSocketManager
 
 load_dotenv()
+
+HOST = os.getenv("HOST", "0.0.0.0")
 
 app = FastAPI()
 logger = logging.getLogger(__name__)
@@ -31,4 +34,4 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("server:app", host=HOST, port=8000, reload=True)

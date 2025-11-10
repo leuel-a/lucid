@@ -7,6 +7,9 @@
     --blue-800: #1e2a3a;
     --blue-700: #2d3e50;
 
+    --blue-gray-900: #243543;
+    --blue-gray-700: #2b3f50;
+
     --orange-600: #ff7e33;
     --orange-400: #ff9a5c;
 }
@@ -24,4 +27,7 @@
 
     --color-text: #e1e8ed;
     --color-text-muted: #aab8c2;
+
+    --color-blue-gray-900: var(--blue-gray-900);
+    --color-blue-gray-700: var(--blue-gray-700);
 }
